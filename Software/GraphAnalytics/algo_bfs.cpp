@@ -6,15 +6,16 @@
 #include <time.h>
 #include <omp.h>
 #include <stdint.h>
+#include <iostream>
 
 #define  final_run 							1024
 #define  control_1							256
 #define  control_2							512
 #define  call_counter_mask			1023
 #define  FPGA_no_of_writes_mask		524287
-#define 	FILE_NAME  					"soc-LiveJournal1.txt"
-#define 	V  		 							2394488
-#define 	E			  							5021400
+#define 	FILE_NAME  					"soc.txt"
+#define 	V  		 							92436*2
+#define 	E			  							4048860
 #define 	I			  							(256*1024)
 #define 	P			  							10
 #define 	CL_PER_INTERBAL			4096
@@ -109,7 +110,7 @@ void bfs(){
 	btUnsigned32bitInt a_num_cl   = a_num_bytes / CL(1);  // number of cache lines in buffer
 
 	// VAFU Context is at the beginning of the buffer
-	btVirtAddr 			pWSUsrVirt = (btVirtAddr) malloc((2*627700 * CL(1) + 40960 * CL(1))*sizeof(UCHAR));
+	btVirtAddr 			pWSUsrVirt = (btVirtAddr) malloc((2*627700 * CL(1) + 40960 * CL(1))*sizeof(UCHAR)); // Char Memory : Large Buffer
 	VAFU2_CNTXT       	*pVAFU2_cntxt = reinterpret_cast<VAFU2_CNTXT *>(pWSUsrVirt);
 	btVirtAddr         	pSource_V = pWSUsrVirt;
 
@@ -181,7 +182,7 @@ void bfs(){
 				} else{
 					counter++;
 				}
-				printf("Edges: %d %d\n",u1,u2);
+				// printf("Edges: %d %d\n",u1,u2);
 			}
 			fclose(fp);
 		}
@@ -236,7 +237,7 @@ void bfs(){
 			for(p=0; p<P; p++){
 				if(Intervals[p].no_of_active_vertex	!= 0){
 					if(Intervals[p].no_of_active_vertex>r_threshold*I){  // edge centric goes here
-						//cout<<"edge centric"<<endl;
+						std::cout<<"edge centric"<<std::endl;
 						#pragma omp parallel num_threads(ThreadNum) shared(vertex_set, pSource_V, pSource_E, Intervals, p) private(i, j, k, interval_id, thread_id)
 						{
 							thread_id = omp_get_thread_num();					
@@ -260,7 +261,7 @@ void bfs(){
 							}												
 						}					
 					} else {   // vertex centric goes here
-						//cout<<"vertex centric"<<endl;
+						std::cout<<"vertex centric"<<std::endl;
 						#pragma omp parallel num_threads(ThreadNum) shared(vertex_set, pSource_V, pSource_E, Intervals, p) private(i, j, k, interval_id, thread_id)
 						{
 							thread_id = omp_get_thread_num();					
@@ -415,6 +416,5 @@ void bfs(){
 
 int main() {
 	bfs();
-	printf("Testing 1\n");
 	return 0;
 }
